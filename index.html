@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -22,10 +23,12 @@
     }
 
     body {
-      background: #FFFFFF;  /* Google White */
+      background: #FFFFFF;
+      /* Google White */
       font-family: 'Google Sans Flex', 'Roboto', 'Arial', sans-serif;
       overflow: hidden;
-      touch-action: none;  /* Prevent iOS Safari gestures */
+      touch-action: none;
+      /* Prevent iOS Safari gestures */
       -webkit-user-select: none;
       user-select: none;
     }
@@ -33,12 +36,15 @@
     #game-container {
       position: relative;
       width: 100vw;
-      height: 100vh;   /* Fallback for older browsers */
-      height: 100dvh;  /* Dynamic viewport height - iOS Safari 15.4+ */
+      height: 100vh;
+      /* Fallback for older browsers */
+      height: 100dvh;
+      /* Dynamic viewport height - iOS Safari 15.4+ */
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #FFFFFF;  /* White background for letterboxing */
+      background: #FFFFFF;
+      /* White background for letterboxing */
     }
 
     canvas {
@@ -48,11 +54,13 @@
     /* Touch Hint (overlay) */
     #touch-hint {
       position: absolute;
-      bottom: 180px;  /* Above score + footer */
+      bottom: 180px;
+      /* Above score + footer */
       width: 100%;
       text-align: center;
       font-size: 16px;
-      color: #5F6368;  /* Google Gray */
+      color: #5F6368;
+      /* Google Gray */
       opacity: 0.7;
       z-index: 10;
       animation: fadeInOut 3s ease-in-out infinite;
@@ -60,17 +68,26 @@
     }
 
     @keyframes fadeInOut {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.9; }
+
+      0%,
+      100% {
+        opacity: 0.4;
+      }
+
+      50% {
+        opacity: 0.9;
+      }
     }
 
     /* Score Section (overlay at bottom) */
     #score-section {
       position: absolute;
-      bottom: 120px;  /* Height of footer */
+      bottom: 120px;
+      /* Height of footer */
       left: 0;
       right: 0;
-      background: rgba(255, 255, 255, 0.95);  /* Semi-transparent */
+      background: rgba(255, 255, 255, 0.95);
+      /* Semi-transparent */
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       padding: 12px 0;
@@ -168,8 +185,10 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: calc(100% - 136px);  /* Don't cover score (44px) + footer (92px) */
-      background: rgba(255, 255, 255, 0.8);  /* White 80% opacity (Figma) */
+      height: calc(100% - 136px);
+      /* Don't cover score (44px) + footer (92px) */
+      background: rgba(255, 255, 255, 0.8);
+      /* White 80% opacity (Figma) */
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       display: none;
@@ -177,7 +196,8 @@
       justify-content: center;
       flex-direction: column;
       z-index: 20;
-      cursor: pointer;  /* Tap anywhere to restart */
+      cursor: pointer;
+      /* Tap anywhere to restart */
     }
 
     #game-over-overlay.visible {
@@ -189,22 +209,29 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;  /* Figma: 14px gap */
+      gap: 14px;
+      /* Figma: 14px gap */
     }
 
     #game-over-text {
-      font-size: 30px;  /* Figma: 30px */
-      font-weight: 500;  /* Figma: weight 500 */
-      color: #515151;  /* Figma: gray */
+      font-size: 30px;
+      /* Figma: 30px */
+      font-weight: 500;
+      /* Figma: weight 500 */
+      color: #515151;
+      /* Figma: gray */
       line-height: 30px;
       font-family: 'Google Sans Flex', sans-serif;
       text-align: center;
     }
 
     #final-score {
-      font-size: 70px;  /* Figma: 70px */
-      font-weight: 500;  /* Figma: weight 500 */
-      color: #515151;  /* Figma: gray */
+      font-size: 70px;
+      /* Figma: 70px */
+      font-weight: 500;
+      /* Figma: weight 500 */
+      color: #515151;
+      /* Figma: gray */
       line-height: 70px;
       font-family: 'Google Sans Flex', sans-serif;
       text-align: center;
@@ -212,12 +239,16 @@
 
     #restart-hint {
       position: absolute;
-      bottom: 120px;  /* Above footer (92px) + margin */
+      bottom: 120px;
+      /* Above footer (92px) + margin */
       left: 50%;
       transform: translateX(-50%);
-      font-size: 16px;  /* Figma: 16px */
-      font-weight: 500;  /* Figma: weight 500 */
-      color: #515151;  /* Figma: gray */
+      font-size: 16px;
+      /* Figma: 16px */
+      font-weight: 500;
+      /* Figma: weight 500 */
+      color: #515151;
+      /* Figma: gray */
       line-height: 16px;
       font-family: 'Google Sans Flex', sans-serif;
       text-align: center;
@@ -243,17 +274,20 @@
       #footer-bar {
         gap: 20px;
         padding: 15px 10px;
-        flex-wrap: wrap;  /* Allow wrapping if really needed, but keep horizontal */
+        flex-wrap: wrap;
+        /* Allow wrapping if really needed, but keep horizontal */
       }
 
       #footer-text {
-        font-size: 14px;  /* Slightly smaller */
+        font-size: 14px;
+        /* Slightly smaller */
       }
 
       #create-button {
         font-size: 13px;
         padding: 10px 15px;
-        min-width: 150px;  /* Slightly smaller */
+        min-width: 150px;
+        /* Slightly smaller */
         min-height: 36px;
       }
 
@@ -270,7 +304,8 @@
       }
 
       #touch-hint {
-        bottom: 180px;  /* Adjust for footer height */
+        bottom: 180px;
+        /* Adjust for footer height */
       }
 
       /* Game Over responsive */
@@ -286,11 +321,13 @@
 
       #restart-hint {
         font-size: 14px;
-        bottom: 110px;  /* Adjust for smaller footer */
+        bottom: 110px;
+        /* Adjust for smaller footer */
       }
     }
   </style>
 </head>
+
 <body>
   <div id="game-container">
     <!-- Loading indicator -->
@@ -311,9 +348,8 @@
 
     <!-- Footer Bar (overlay at bottom) -->
     <div id="footer-bar">
-      <div id="footer-text">Work at Google</div>
-      <a id="create-button" href="#" role="button">
-        <span>Create your own</span>
+      <a id="create-button" href="https://g.co/jobs/AI" role="button">
+        <span>Work at Google</span>
         <div class="arrow"></div>
       </a>
     </div>
@@ -331,4 +367,5 @@
   <!-- Main game script (ES6 module) -->
   <script type="module" src="game.js"></script>
 </body>
+
 </html>
