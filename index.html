@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="description" content="Dino Runner - Mobile version powered by Conway's Game of Life">
+  <title>Dino Runner - Game of Life Edition</title>
+
+  <!-- p5.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.min.js"></script>
+
+  <!-- Google Sans Flex Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #FFFFFF;  /* Google White */
+      font-family: 'Google Sans Flex', 'Roboto', 'Arial', sans-serif;
+      overflow: hidden;
+      touch-action: none;  /* Prevent iOS Safari gestures */
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;   /* Fallback for older browsers */
+      height: 100dvh;  /* Dynamic viewport height - iOS Safari 15.4+ */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;  /* White background for letterboxing */
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /* Touch Hint (overlay) */
+    #touch-hint {
+      position: absolute;
+      bottom: 180px;  /* Above score + footer */
+      width: 100%;
+      text-align: center;
+      font-size: 16px;
+      color: #5F6368;  /* Google Gray */
+      opacity: 0.7;
+      z-index: 10;
+      animation: fadeInOut 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.9; }
+    }
+
+    /* Score Section (overlay at bottom) */
+    #score-section {
+      position: absolute;
+      bottom: 120px;  /* Height of footer */
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);  /* Semi-transparent */
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 12px 0;
+      text-align: center;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    #score-display {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    #score-label {
+      color: #515151;
+      font-size: 17.6px;
+      font-weight: 500;
+      line-height: 17.6px;
+    }
+
+    #score {
+      color: #515151;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 22px;
+    }
+
+    /* Footer Bar (overlay at bottom) */
+    #footer-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #F6F6F6;
+      border-top: 1px solid #EBEBEB;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 31px;
+      min-height: 92px;
+      z-index: 15;
+    }
+
+    #footer-text {
+      color: #515151;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 16px;
+      text-align: center;
+    }
+
+    #create-button {
+      background: #3C6BCF;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 14px;
+      padding: 12px 18px;
+      border-radius: 40px;
+      border: 2px solid #3C6BCF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 170px;
+      min-height: 38px;
+      justify-content: center;
+      transition: background 0.2s, transform 0.1s;
+      text-decoration: none;
+    }
+
+    #create-button:hover {
+      background: #2C5ABF;
+      border-color: #2C5ABF;
+    }
+
+    #create-button:active {
+      transform: scale(0.98);
+    }
+
+    .arrow {
+      width: 0;
+      height: 0;
+      border-top: 4.5px solid transparent;
+      border-bottom: 4.5px solid transparent;
+      border-left: 5.5px solid white;
+    }
+
+    /* Game Over Overlay - Figma Design */
+    #game-over-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 136px);  /* Don't cover score (44px) + footer (92px) */
+      background: rgba(255, 255, 255, 0.8);  /* White 80% opacity (Figma) */
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 20;
+      cursor: pointer;  /* Tap anywhere to restart */
+    }
+
+    #game-over-overlay.visible {
+      display: flex;
+    }
+
+    /* Game Over Content Wrapper */
+    #game-over-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;  /* Figma: 14px gap */
+    }
+
+    #game-over-text {
+      font-size: 30px;  /* Figma: 30px */
+      font-weight: 500;  /* Figma: weight 500 */
+      color: #515151;  /* Figma: gray */
+      line-height: 30px;
+      font-family: 'Google Sans Flex', sans-serif;
+      text-align: center;
+    }
+
+    #final-score {
+      font-size: 70px;  /* Figma: 70px */
+      font-weight: 500;  /* Figma: weight 500 */
+      color: #515151;  /* Figma: gray */
+      line-height: 70px;
+      font-family: 'Google Sans Flex', sans-serif;
+      text-align: center;
+    }
+
+    #restart-hint {
+      position: absolute;
+      bottom: 120px;  /* Above footer (92px) + margin */
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 16px;  /* Figma: 16px */
+      font-weight: 500;  /* Figma: weight 500 */
+      color: #515151;  /* Figma: gray */
+      line-height: 16px;
+      font-family: 'Google Sans Flex', sans-serif;
+      text-align: center;
+    }
+
+    /* Loading indicator */
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #4285F4;
+      z-index: 5;
+    }
+
+    #loading.hidden {
+      display: none;
+    }
+
+    /* Responsive adjustments for small screens */
+    @media (max-width: 480px) {
+      #footer-bar {
+        gap: 20px;
+        padding: 15px 10px;
+        flex-wrap: wrap;  /* Allow wrapping if really needed, but keep horizontal */
+      }
+
+      #footer-text {
+        font-size: 14px;  /* Slightly smaller */
+      }
+
+      #create-button {
+        font-size: 13px;
+        padding: 10px 15px;
+        min-width: 150px;  /* Slightly smaller */
+        min-height: 36px;
+      }
+
+      #score-section {
+        padding: 10px 0;
+      }
+
+      #score-label {
+        font-size: 16px;
+      }
+
+      #score {
+        font-size: 20px;
+      }
+
+      #touch-hint {
+        bottom: 180px;  /* Adjust for footer height */
+      }
+
+      /* Game Over responsive */
+      #game-over-text {
+        font-size: 24px;
+        line-height: 24px;
+      }
+
+      #final-score {
+        font-size: 60px;
+        line-height: 60px;
+      }
+
+      #restart-hint {
+        font-size: 14px;
+        bottom: 110px;  /* Adjust for smaller footer */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <!-- Loading indicator -->
+    <div id="loading">Loading...</div>
+
+    <!-- Canvas will be inserted here by p5.js (100vw x 100vh) -->
+
+    <!-- Touch Hint (overlay) -->
+    <div id="touch-hint">Tap to Jump</div>
+
+    <!-- Score Section (overlay at bottom) -->
+    <div id="score-section">
+      <div id="score-display">
+        <div id="score-label">Score</div>
+        <div id="score">0</div>
+      </div>
+    </div>
+
+    <!-- Footer Bar (overlay at bottom) -->
+    <div id="footer-bar">
+      <div id="footer-text">Work at Google</div>
+      <a id="create-button" href="#" role="button">
+        <span>Create your own</span>
+        <div class="arrow"></div>
+      </a>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div id="game-over-overlay">
+      <div id="game-over-content">
+        <div id="game-over-text">Game Over</div>
+        <div id="final-score"><span id="final-score-value">0</span></div>
+      </div>
+      <div id="restart-hint">Tap to restart</div>
+    </div>
+  </div>
+
+  <!-- Main game script (ES6 module) -->
+  <script type="module" src="game.js"></script>
+</body>
+</html>
