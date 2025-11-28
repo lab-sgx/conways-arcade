@@ -19,17 +19,29 @@
 <body>
   <script>
     (function() {
+      const EVENT_END = new Date('2025-11-06T00:00:00');
+      const now = new Date();
+
       const games = {
         dino: 'dino-runner',
         flappy: 'flappy-bird'
       };
 
       const params = new URLSearchParams(window.location.search);
-      const forced = params.get('game');
+      const forcedGame = params.get('game');
+      const forceFinished = params.get('finished') === 'true';
 
+      // Event finished: redirect to event-finished page
+      // Bypass with ?game=dino or ?game=flappy
+      if (forceFinished || (now >= EVENT_END && !forcedGame)) {
+        window.location.href = 'event-finished/';
+        return;
+      }
+
+      // Game selection: forced or random
       let target;
-      if (forced && games[forced]) {
-        target = games[forced];
+      if (forcedGame && games[forcedGame]) {
+        target = games[forcedGame];
       } else {
         const gameList = Object.values(games);
         target = gameList[Math.floor(Math.random() * gameList.length)];
